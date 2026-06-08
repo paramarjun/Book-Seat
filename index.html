@@ -214,33 +214,51 @@
     return cmp < today;
   }
 
+  function getDateForTargetWeekday(targetDay, baseDate) {
+    const date = new Date(baseDate);
+    const currentDay = baseDate.getDay();
+    const diff = targetDay - currentDay;
+
+    if (diff >= 0) {
+      date.setDate(baseDate.getDate() + diff);
+      return date;
+    }
+
+    if (currentDay === 5 && targetDay === 1) {
+      date.setDate(baseDate.getDate() + (7 - currentDay) + targetDay);
+      return date;
+    }
+
+    date.setDate(baseDate.getDate() + diff);
+    return date;
+  }
+
   function buildDateTiles() {
     const today = new Date(currentDate);
     const dow   = today.getDay();
-    shownDates  = [];
+    const displayRules = {
+      1: [1, 2],
+      2: [2, 3],
+      3: [3, 4],
+      4: [4, 5],
+      5: [4, 1]
+    };
 
-    if (dow === 1) {
-      shownDates = [new Date(today)];
-    } else if (dow >= 2 && dow <= 5) {
-      const prev = new Date(today);
-      prev.setDate(today.getDate() - 1);
-      shownDates = [prev, new Date(today)];
-    } else {
-      shownDates = [new Date(today)];
-    }
+    const weekdays = displayRules[dow] || [dow];
+    shownDates = weekdays.map(day => getDateForTargetWeekday(day, today));
 
     const container = document.getElementById('date-tiles');
     container.innerHTML = '';
     shownDates.forEach((d, i) => {
-      const isToday = d.toDateString() === today.toDateString();
       const tile = document.createElement('div');
-      tile.className = 'date-tile' + (isToday ? ' active' : '');
+      tile.className = 'date-tile';
       tile.innerHTML = `<span class="d-day">${DAYS[d.getDay()]}</span><span class="d-num">${fmtTileNum(d)}</span>`;
       tile.onclick = () => selectDate(i);
       container.appendChild(tile);
     });
 
-    selectDate(shownDates.length - 1);
+    const activeIndex = shownDates.findIndex(d => !isPast(d));
+    selectDate(activeIndex >= 0 ? activeIndex : 0);
   }
 
   function selectDate(idx) {
