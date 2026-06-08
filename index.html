@@ -32,6 +32,13 @@
     .bk-id { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; letter-spacing: 0.3px; }
     .bk-loc { font-size: 13.5px; color: #333; line-height: 1.8; }
     .cancel-btn { color: #7C4DCC; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 9px; display: inline-block; background: transparent; border: none; padding: 0; outline: none; font-family: 'Roboto', sans-serif; }
+    .bk-time { display: inline-block; font-size: 14px; font-weight: 500; color: #333; cursor: pointer; }
+    .bk-time:hover { text-decoration: underline; }
+    .time-hint { display: block; margin-top: 8px; color: #777; font-size: 13px; }
+    .time-editor { display: none; flex-direction: column; gap: 10px; margin-top: 12px; }
+    .time-select { width: 100%; border: 1px solid #ccc; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; background: #fff; }
+    .time-ok { width: fit-content; background: #1a73e8; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 500; }
+    .time-ok:hover { background: #1558b0; }
 
     /* DATE TILES */
     .date-section { padding: 14px 14px 0; }
@@ -101,7 +108,16 @@
         <span id="status-badge" class="booked-badge">Booked</span>
       </div>
       <div class="bk-id">GURST 02 03 A 006</div>
-      <div class="bk-loc">Gurgaon, GURST, GGNUT, FLOOR-3, A<br><span id="bk-time">08:00AM - 11:45AM</span></div>
+      <div class="bk-loc">Gurgaon, GURST, GGNUT, FLOOR-3, A<br><span id="bk-time" class="bk-time">08:00AM - 11:45AM</span><span class="time-hint">Double-click time to edit</span></div>
+      <div class="time-editor" id="time-editor">
+        <select id="time-select" class="time-select">
+          <option value="08:00AM - 11:45AM">08:00AM - 11:45AM</option>
+          <option value="12:00PM - 03:45PM">12:00PM - 03:45PM</option>
+          <option value="04:00PM - 07:45PM">04:00PM - 07:45PM</option>
+          <option value="08:00AM - 08:00PM">08:00AM - 08:00PM</option>
+        </select>
+        <button class="time-ok" id="time-ok">OK</button>
+      </div>
       <button class="cancel-btn" id="cancel-btn">Cancel</button>
     </div>
   </div>
@@ -171,8 +187,20 @@
   const CITIES  = ['Gurgaon', 'Kolkata', 'Noida'];
   const DAYS    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const MONTHS  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const BOOKING_TIME_OPTIONS = ['08:00AM - 11:45AM', '12:00PM - 03:45PM', '04:00PM - 07:45PM', '08:00AM - 08:00PM'];
 
-  let city = 'Gurgaon', pendingCity = 'Gurgaon', openDC = null, shownDates = [];
+  let city = 'Gurgaon', pendingCity = 'Gurgaon', openDC = null, shownDates = [], currentDate = new Date(), selectedBookingTime = BOOKING_TIME_OPTIONS[0];
+
+  async function getCurrentDateFromAPI() {
+    try {
+      const res = await fetch('https://worldtimeapi.org/api/ip');
+      if (!res.ok) throw new Error('Time API failed');
+      const data = await res.json();
+      return new Date(data.datetime);
+    } catch (err) {
+      return new Date();
+    }
+  }
 
   function fmtCardDate(d) {
     return String(d.getDate()).padStart(2,'0') + '-' + MONTHS[d.getMonth()] + '-' + d.getFullYear();
@@ -181,13 +209,14 @@
     return String(d.getDate()).padStart(2,'0') + ' ' + MONTHS[d.getMonth()];
   }
   function isPast(d) {
-    const today = new Date(); today.setHours(0,0,0,0);
+    const today = new Date(currentDate);
+    today.setHours(0,0,0,0);
     const cmp   = new Date(d); cmp.setHours(0,0,0,0);
     return cmp < today;
   }
 
   function buildDateTiles() {
-    const today = new Date();
+    const today = new Date(currentDate);
     const dow   = today.getDay();
     shownDates  = [];
 
@@ -224,6 +253,7 @@
 
   function updateBookingCard(d) {
     document.getElementById('bk-date').textContent = fmtCardDate(d);
+    document.getElementById('bk-time').textContent = selectedBookingTime;
     const badge     = document.getElementById('status-badge');
     const cancelBtn = document.getElementById('cancel-btn');
     if (isPast(d)) {
@@ -235,6 +265,40 @@
       badge.textContent = 'Booked';
       cancelBtn.style.display = 'inline-block';
     }
+  }
+
+  function setBookingTime(time) {
+    selectedBookingTime = time;
+    document.getElementById('bk-time').textContent = time;
+  }
+
+  function showTimeEditor() {
+    const editor = document.getElementById('time-editor');
+    const select = document.getElementById('time-select');
+    select.value = selectedBookingTime;
+    editor.style.display = 'flex';
+  }
+
+  function hideTimeEditor() {
+    document.getElementById('time-editor').style.display = 'none';
+  }
+
+  function attachTimeEditorEvents() {
+    const timeLabel = document.getElementById('bk-time');
+    const okBtn = document.getElementById('time-ok');
+    const select = document.getElementById('time-select');
+    timeLabel.ondblclick = showTimeEditor;
+    okBtn.onclick = () => {
+      setBookingTime(select.value);
+      hideTimeEditor();
+    };
+  }
+
+  async function init() {
+    currentDate = await getCurrentDateFromAPI();
+    buildDateTiles();
+    renderDC();
+    attachTimeEditorEvents();
   }
 
   function renderDC() {
@@ -289,8 +353,14 @@
   function closeCityModal() { document.getElementById('city-modal').classList.remove('open'); }
   function cityBgClick(e)   { if (e.target === document.getElementById('city-modal')) closeCityModal(); }
 
-  buildDateTiles();
-  renderDC();
+  async function init() {
+    currentDate = await getCurrentDateFromAPI();
+    buildDateTiles();
+    renderDC();
+    attachTimeEditorEvents();
+  }
+
+  init();
 </script>
 </body>
 </html>
