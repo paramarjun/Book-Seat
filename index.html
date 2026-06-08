@@ -32,9 +32,8 @@
     .bk-id { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; letter-spacing: 0.3px; }
     .bk-loc { font-size: 13.5px; color: #333; line-height: 1.8; }
     .cancel-btn { color: #7C4DCC; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 9px; display: inline-block; background: transparent; border: none; padding: 0; outline: none; font-family: 'Roboto', sans-serif; }
-    .bk-time { display: inline-block; font-size: 14px; font-weight: 500; color: #333; cursor: pointer; }
-    .bk-time:hover { text-decoration: underline; }
-    .time-hint { display: block; margin-top: 8px; color: #777; font-size: 13px; }
+    .bk-time { display: inline-block; font-size: 14px; font-weight: 500; color: #333; }
+    .bk-time:hover { text-decoration: none; }
     .time-editor { display: none; flex-direction: column; gap: 10px; margin-top: 12px; }
     .time-select { width: 100%; border: 1px solid #ccc; border-radius: 10px; padding: 10px 12px; font-size: 14px; outline: none; background: #fff; }
     .time-ok { width: fit-content; background: #1a73e8; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; cursor: pointer; font-weight: 500; }
@@ -108,7 +107,7 @@
         <span id="status-badge" class="booked-badge">Booked</span>
       </div>
       <div class="bk-id">GURST 02 03 A 006</div>
-      <div class="bk-loc">Gurgaon, GURST, GGNUT, FLOOR-3, A<br><span id="bk-time" class="bk-time">08:00AM - 11:45AM</span><span class="time-hint">Double-click time to edit</span></div>
+      <div class="bk-loc">Gurgaon, GURST, GGNUT, FLOOR-3, A<br><span id="bk-time" class="bk-time">08:00AM - 11:45AM</span></div>
       <div class="time-editor" id="time-editor">
         <select id="time-select" class="time-select">
           <option value="08:00AM - 11:45AM">08:00AM - 11:45AM</option>
