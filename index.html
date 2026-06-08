@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Seat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Roboto', sans-serif; }
+    body { background: #E8E8E8; display: flex; justify-content: center; }
+    .app { background: #E8E8E8; min-height: 100vh; width: 100%; max-width: 480px; }
+
+    /* TOPBAR */
+    .topbar { background: #fff; padding: 13px 16px; display: flex; align-items: center; gap: 12px; border-bottom: 0.5px solid #ddd; position: sticky; top: 0; z-index: 10; }
+    .back-btn, .more-btn { width: 34px; height: 34px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; outline: none; }
+    .topbar-title { font-size: 16px; font-weight: 400; color: #444; flex: 1; }
+
+    /* INFO BANNER */
+    .info-banner { background: #DDEEFF; margin: 10px 12px; border-radius: 8px; padding: 11px 13px; font-size: 13.5px; color: #333; line-height: 1.5; }
+    .info-banner a { color: #1565C0; text-decoration: none; }
+
+    /* BOOKING CARD */
+    .bk-section { padding: 14px 14px 8px; }
+    .bk-title { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 10px; }
+    .booking-card { background: #fff; border: 0.5px solid #ccc; border-radius: 10px; padding: 13px 15px; }
+    .bk-row1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .bk-date { font-size: 13px; color: #555; }
+    .booked-badge { background: #C8F5C8; color: #1DB81D; font-size: 13.5px; font-weight: 700; padding: 4px 14px; border-radius: 30px; border: none; letter-spacing: 0.2px; }
+    .unavailable-badge { background: #FFE0E0; color: #E53935; font-size: 13.5px; font-weight: 700; padding: 4px 14px; border-radius: 30px; border: none; letter-spacing: 0.2px; }
+    .bk-id { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; letter-spacing: 0.3px; }
+    .bk-loc { font-size: 13.5px; color: #333; line-height: 1.8; }
+    .cancel-btn { color: #7C4DCC; font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 9px; display: inline-block; background: transparent; border: none; padding: 0; outline: none; font-family: 'Roboto', sans-serif; }
+
+    /* DATE TILES */
+    .date-section { padding: 14px 14px 0; }
+    .date-label { font-size: 15px; font-weight: 400; color: #111; margin-bottom: 10px; }
+    .date-tiles-row { display: flex; gap: 10px; }
+    .date-tile { display: inline-flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid #ccc; border-radius: 10px; padding: 11px 20px; min-width: 90px; cursor: pointer; }
+    .date-tile.active { background: #F3E5FF; border: 1.5px solid #CE93D8; }
+    .date-tile .d-day { font-size: 13px; color: #333; font-weight: 400; margin-bottom: 1px; }
+    .date-tile.active .d-day { color: #7B1FA2; }
+    .date-tile .d-num { font-size: 15px; font-weight: 500; color: #333; }
+    .date-tile.active .d-num { color: #6A1B9A; }
+
+    /* CITY */
+    .city-section { padding: 16px 14px 0; }
+    .city-label { font-size: 15px; font-weight: 400; color: #111; margin-bottom: 7px; }
+    .city-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0 10px; border-bottom: 1px solid #bbb; cursor: pointer; }
+    .city-val { font-size: 15px; font-weight: 400; color: #111; }
+
+    /* DC */
+    .dc-section { padding: 16px 14px 0; }
+    .dc-heading { font-size: 16px; font-weight: 700; color: #111; margin-bottom: 6px; }
+    .dc-divider { height: 1px; background: #bbb; }
+    .dc-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid #bbb; cursor: pointer; }
+    .dc-name { font-size: 15px; font-weight: 400; color: #111; letter-spacing: 0.3px; }
+    .dc-name.open { color: #7C4DCC; font-weight: 500; }
+    .floors-wrap { padding: 4px 0 8px; }
+    .floor-name { font-size: 14.5px; font-weight: 400; color: #111; padding: 12px 0 8px; }
+    .slots-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px; }
+    .slots-row::-webkit-scrollbar { display: none; }
+    .slot-card { flex-shrink: 0; background: #fff; border: 0.5px solid #e0e0e0; border-radius: 10px; padding: 14px 10px; min-width: 140px; text-align: center; box-shadow: 2px 2px 4px rgba(0,0,0,0.08); }
+    .slot-time { font-size: 13px; font-weight: 400; color: #C0390B; margin-bottom: 6px; line-height: 1.3; }
+    .slot-seats { font-size: 13px; font-weight: 400; color: #C0390B; }
+
+    /* ALLOCATE BUTTON */
+    .alloc-wrap { padding: 20px 14px 18px; }
+    .alloc-btn { width: 100%; background: #6D6D6D; color: #fff; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: 'Roboto', sans-serif; letter-spacing: 0.3px; display: block; outline: none; }
+
+    /* CITY MODAL */
+    .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: flex-end; }
+    .modal-bg.open { display: flex; }
+    .modal-sheet { background: #F2F2F2; border-radius: 20px 20px 0 0; padding: 14px 16px 20px; width: 100%; }
+    .modal-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; position: relative; }
+    .modal-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 15px; font-weight: 500; color: #111; }
+    .m-close { width: 36px; height: 36px; border-radius: 50%; background: #e0e0e0; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #555; outline: none; }
+    .m-confirm { width: 36px; height: 36px; border-radius: 50%; background: #222; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #fff; outline: none; }
+    .city-opt { padding: 15px 8px; text-align: center; font-size: 16px; border-radius: 8px; cursor: pointer; color: #999; font-weight: 400; }
+    .city-opt.sel { background: #e4e4e4; color: #111; font-weight: 500; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <button class="back-btn"><i class="ti ti-arrow-left" style="font-size:17px;color:#444"></i></button>
+    <span class="topbar-title">Book Seat for Time Slots</span>
+    <button class="more-btn"><i class="ti ti-dots-vertical" style="font-size:17px;color:#444"></i></button>
+  </div>
+
+  <div class="info-banner">
+    <a href="#">Click Here</a> to view the cities/DCs where only full-day seat booking is enabled.
+  </div>
+
+  <div class="bk-section">
+    <div class="bk-title">Booking Updates</div>
+    <div class="booking-card">
+      <div class="bk-row1">
+        <span class="bk-date" id="bk-date"></span>
+        <span id="status-badge" class="booked-badge">Booked</span>
+      </div>
+      <div class="bk-id">GURST 02 03 A 006</div>
+      <div class="bk-loc">Gurgaon, GURST, GGNUT, FLOOR-3, A<br><span id="bk-time">08:00AM - 11:45AM</span></div>
+      <button class="cancel-btn" id="cancel-btn">Cancel</button>
+    </div>
+  </div>
+
+  <div class="date-section">
+    <div class="date-label">Date</div>
+    <div class="date-tiles-row" id="date-tiles"></div>
+  </div>
+
+  <div class="city-section">
+    <div class="city-label">City</div>
+    <div class="city-row" onclick="openCityModal()">
+      <span class="city-val" id="city-disp">Gurgaon</span>
+      <span style="color:#555;font-size:15px;"><i class="ti ti-chevron-down"></i></span>
+    </div>
+  </div>
+
+  <div class="dc-section">
+    <div class="dc-heading">Development Center</div>
+    <div class="dc-divider"></div>
+    <div id="dc-list"></div>
+  </div>
+
+  <div class="alloc-wrap">
+    <button class="alloc-btn">Get System Allocated Seat</button>
+  </div>
+</div>
+
+<!-- City Modal -->
+<div class="modal-bg" id="city-modal" onclick="cityBgClick(event)">
+  <div class="modal-sheet">
+    <div class="modal-hdr">
+      <button class="m-close" onclick="closeCityModal()"><i class="ti ti-x" style="font-size:17px"></i></button>
+      <span class="modal-title">City</span>
+      <button class="m-confirm" onclick="confirmCity()"><i class="ti ti-check" style="font-size:17px"></i></button>
+    </div>
+    <div id="city-list"></div>
+  </div>
+</div>
+
+<script>
+  const DATA = {
+    Gurgaon: {
+      dcs: {
+        'GURGAON-STP1': {
+          floors: [
+            { name: 'GGNUT, FLOOR-4, A', slots: ['08:00AM - 11:45AM', '12:00PM - 03:45PM', '04:00PM - 07:45PM', '08:00AM - 08:00PM'] },
+            { name: 'GGNUT, FLOOR-5, A', slots: ['08:00AM - 11:45AM', '12:00PM - 03:45PM', '04:00PM - 07:45PM', '08:00AM - 08:00PM'] },
+            { name: 'GGNUT, FLOOR-3, A', slots: ['08:00AM - 11:45AM', '12:00PM - 03:45PM', '04:00PM - 07:45PM', '08:00AM - 08:00PM'] }
+          ]
+        }
+      }
+    },
+    Noida: {
+      dcs: {
+        'NOIDA-STP': {
+          floors: [
+            { name: 'ACECAPITOL, FLOOR-10, C', slots: ['08:00AM - 02:00PM', '02:00PM - 08:00PM'] },
+            { name: 'ACECAPITOL, FLOOR-10, A', slots: ['08:00AM - 02:00PM', '02:00PM - 08:00PM'] },
+            { name: 'BHUT01, FLOOR-16, A',     slots: ['08:00AM - 02:00PM', '02:00PM - 08:00PM'] }
+          ]
+        }
+      }
+    }
+  };
+
+  const CITIES  = ['Gurgaon', 'Kolkata', 'Noida'];
+  const DAYS    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MONTHS  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  let city = 'Gurgaon', pendingCity = 'Gurgaon', openDC = null, shownDates = [];
+
+  function fmtCardDate(d) {
+    return String(d.getDate()).padStart(2,'0') + '-' + MONTHS[d.getMonth()] + '-' + d.getFullYear();
+  }
+  function fmtTileNum(d) {
+    return String(d.getDate()).padStart(2,'0') + ' ' + MONTHS[d.getMonth()];
+  }
+  function isPast(d) {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const cmp   = new Date(d); cmp.setHours(0,0,0,0);
+    return cmp < today;
+  }
+
+  function buildDateTiles() {
+    const today = new Date();
+    const dow   = today.getDay();
+    shownDates  = [];
+
+    if (dow === 1) {
+      shownDates = [new Date(today)];
+    } else if (dow >= 2 && dow <= 5) {
+      const prev = new Date(today);
+      prev.setDate(today.getDate() - 1);
+      shownDates = [prev, new Date(today)];
+    } else {
+      shownDates = [new Date(today)];
+    }
+
+    const container = document.getElementById('date-tiles');
+    container.innerHTML = '';
+    shownDates.forEach((d, i) => {
+      const isToday = d.toDateString() === today.toDateString();
+      const tile = document.createElement('div');
+      tile.className = 'date-tile' + (isToday ? ' active' : '');
+      tile.innerHTML = `<span class="d-day">${DAYS[d.getDay()]}</span><span class="d-num">${fmtTileNum(d)}</span>`;
+      tile.onclick = () => selectDate(i);
+      container.appendChild(tile);
+    });
+
+    selectDate(shownDates.length - 1);
+  }
+
+  function selectDate(idx) {
+    document.querySelectorAll('.date-tile').forEach((t, i) => {
+      t.className = 'date-tile' + (i === idx ? ' active' : '');
+    });
+    updateBookingCard(shownDates[idx]);
+  }
+
+  function updateBookingCard(d) {
+    document.getElementById('bk-date').textContent = fmtCardDate(d);
+    const badge     = document.getElementById('status-badge');
+    const cancelBtn = document.getElementById('cancel-btn');
+    if (isPast(d)) {
+      badge.className   = 'unavailable-badge';
+      badge.textContent = 'Unavailable';
+      cancelBtn.style.display = 'none';
+    } else {
+      badge.className   = 'booked-badge';
+      badge.textContent = 'Booked';
+      cancelBtn.style.display = 'inline-block';
+    }
+  }
+
+  function renderDC() {
+    const el  = document.getElementById('dc-list');
+    el.innerHTML = '';
+    const dcs = DATA[city] ? DATA[city].dcs : {};
+    Object.entries(dcs).forEach(([dc, data]) => {
+      const isOpen = openDC === dc;
+      const wrap   = document.createElement('div');
+      let floorsHTML = '';
+      if (isOpen) {
+        floorsHTML = '<div class="floors-wrap">' + data.floors.map(f => `
+          <div class="floor-name">${f.name}</div>
+          <div class="slots-row">${f.slots.map(s => `
+            <div class="slot-card">
+              <div class="slot-time">${s}</div>
+              <div class="slot-seats">0 Seat(s)</div>
+            </div>`).join('')}
+          </div>`).join('') + '</div>';
+      }
+      wrap.innerHTML = `
+        <div class="dc-row" onclick="toggleDC('${dc}')">
+          <span class="dc-name${isOpen ? ' open' : ''}">${dc}</span>
+          <i class="ti ${isOpen ? 'ti-chevron-up' : 'ti-chevron-down'}" style="font-size:17px;color:#555"></i>
+        </div>
+        ${floorsHTML}
+        <div class="dc-divider"></div>`;
+      el.appendChild(wrap);
+    });
+  }
+
+  function toggleDC(n) { openDC = openDC === n ? null : n; renderDC(); }
+
+  function openCityModal() {
+    pendingCity = city;
+    document.getElementById('city-list').innerHTML = CITIES.map(c =>
+      `<div class="city-opt${c === pendingCity ? ' sel' : ''}" onclick="pickCity('${c}')">${c}</div>`
+    ).join('');
+    document.getElementById('city-modal').classList.add('open');
+  }
+  function pickCity(c) {
+    pendingCity = c;
+    document.querySelectorAll('.city-opt').forEach(el => el.classList.toggle('sel', el.textContent.trim() === c));
+  }
+  function confirmCity() {
+    city = pendingCity;
+    document.getElementById('city-disp').textContent = city;
+    openDC = null;
+    closeCityModal();
+    renderDC();
+  }
+  function closeCityModal() { document.getElementById('city-modal').classList.remove('open'); }
+  function cityBgClick(e)   { if (e.target === document.getElementById('city-modal')) closeCityModal(); }
+
+  buildDateTiles();
+  renderDC();
+</script>
+</body>
+</html>
